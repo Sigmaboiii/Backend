@@ -1,7 +1,7 @@
 import express from "express";
 import { StreamVideoServer } from "@stream-io/video-node";
 import dotenv from "dotenv";
-import { authenticateUser } from "../middleware/authMiddleware.js";
+import { protectRoute } from "../middleware/auth.middleware.js";
 
 dotenv.config();
 
@@ -12,15 +12,15 @@ const apiSecret = process.env.STREAM_API_SECRET;
 
 const videoServer = new StreamVideoServer({ apiKey, apiSecret });
 
-router.post("/create-call", authenticateUser, async (req, res) => {
+router.post("/create-call", protectRoute, async (req, res) => {
   const { callerId, receiverId } = req.body;
 
   if (!callerId || !receiverId) {
     return res.status(400).json({ error: "callerId and receiverId are required" });
   }
 
-  // Optionally, validate callerId matches the logged-in user
-  if (req.user.id !== callerId) {
+  // Ensure callerId matches authenticated user
+  if (req.user._id.toString() !== callerId) {
     return res.status(403).json({ error: "Caller ID does not match authenticated user" });
   }
 
@@ -44,5 +44,6 @@ router.post("/create-call", authenticateUser, async (req, res) => {
 });
 
 export default router;
+
 
 
