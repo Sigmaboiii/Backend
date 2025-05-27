@@ -9,8 +9,13 @@ const router = express.Router();
 const apiKey = process.env.STREAM_API_KEY;
 const apiSecret = process.env.STREAM_API_SECRET;
 
+if (!apiKey || !apiSecret) {
+  console.error("Stream API key or secret is missing");
+}
+
 const videoServer = new StreamVideoServer({ apiKey, apiSecret });
 
+// Route to create or get a call session with two members
 router.post("/create-call", async (req, res) => {
   const { callerId, receiverId } = req.body;
 
@@ -18,13 +23,13 @@ router.post("/create-call", async (req, res) => {
     return res.status(400).json({ error: "callerId and receiverId are required" });
   }
 
-  // Create unique callId based on caller and receiver
+  // Generate a consistent unique callId based on caller and receiver IDs (sorted)
   const callId = [callerId, receiverId].sort().join("-");
 
   try {
     const call = videoServer.call("default", callId);
 
-    // Create or get call with members
+    // Create or get the call with members as users
     await call.getOrCreate({
       members: [
         { user_id: callerId },
@@ -40,3 +45,4 @@ router.post("/create-call", async (req, res) => {
 });
 
 export default router;
+
