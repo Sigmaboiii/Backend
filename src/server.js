@@ -7,7 +7,7 @@ import path from "path";
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import chatRoutes from "./routes/chat.route.js";
-import videoCallsRoutes from "./routes/videoCalls.route.js"; // <-- new import
+import videoCallsRoutes from "./routes/videoCalls.route.js"; // <-- New import for video calls routes
 
 import { connectDB } from "./lib/db.js";
 
@@ -19,19 +19,20 @@ const __dirname = path.resolve();
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
-    credentials: true,
+    credentials: true, // Allow cookies from frontend
   })
 );
 
 app.use(express.json());
 app.use(cookieParser());
 
+// Route middlewares
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
-app.use("/api/calls", videoCallsRoutes);  // <-- add this
+app.use("/api/calls", videoCallsRoutes); // <-- Add video calls route here
 
-// Frontend serving code if needed
+// Serve frontend in production (uncomment if frontend is bundled inside backend)
 /*
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
@@ -46,3 +47,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   connectDB();
 });
+
