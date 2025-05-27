@@ -15,7 +15,6 @@ export async function signup(req, res) {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
@@ -25,7 +24,7 @@ export async function signup(req, res) {
       return res.status(400).json({ message: "Email already exists, please use a different one" });
     }
 
-    const idx = Math.floor(Math.random() * 100) + 1; // generate a num between 1-100
+    const idx = Math.floor(Math.random() * 100) + 1;
     const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
 
     const newUser = await User.create({
@@ -51,10 +50,10 @@ export async function signup(req, res) {
     });
 
     res.cookie("jwt", token, {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      httpOnly: true, // prevent XSS attacks
-      sameSite: "none", // allow cross-site cookie
-      secure: process.env.NODE_ENV === "production", // HTTPS required for sameSite none
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",  // << Updated
+      secure: process.env.NODE_ENV === "production", // only set secure in production
     });
 
     res.status(201).json({ success: true, user: newUser });
@@ -83,10 +82,10 @@ export async function login(req, res) {
     });
 
     res.cookie("jwt", token, {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      httpOnly: true, // prevent XSS attacks
-      sameSite: "none", // allow cross-site cookie
-      secure: process.env.NODE_ENV === "production", // HTTPS required for sameSite none
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",  // << Updated
+      secure: process.env.NODE_ENV === "production",
     });
 
     res.status(200).json({ success: true, user });
@@ -98,7 +97,7 @@ export async function login(req, res) {
 
 export function logout(req, res) {
   res.clearCookie("jwt", {
-    sameSite: "none",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",  // << Added for clearCookie too
     secure: process.env.NODE_ENV === "production",
   });
   res.status(200).json({ success: true, message: "Logout successful" });
